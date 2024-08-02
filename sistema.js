@@ -279,6 +279,8 @@ class Sistema{
                         break
 
                     case 9:
+                        this.excluir_produto();
+                        break
 
                     case 10:
 
@@ -458,6 +460,32 @@ class Sistema{
                     this.produtos[i].descricao = descricao;
                 }
             }
+
+            this.produtos.sort((a, b) => a.nome.localeCompare(b.nome)); //deixando a lista sempre em ordem alfabética
+            console.log("\nProduto editado com sucesso!\n")
+        }
+    }
+
+    excluir_produto(){
+        console.log("-------------------------------------Excluir produto-------------------------------------");
+        if (this.produtos.length == 0){
+            console.log("Nenhum produto encontrado.\n")
+        }
+
+        else{
+            for (let produto of produtos){
+                console.log(`ID: ${produto.id_produto}\nNome: ${produto.nome}\nPreço: ${produto.preco}\nValidade: ${produto.validade}\nEstoque: ${produto.estoque}\nDescricao: ${produto.descricao}\n\n`)
+            }
+
+            let id = input.question("Digite o ID do produto que você deseja excluir: ")
+
+            for (let i = 0; i<this.produtos.length; i++){
+                if (this.produtos[i].id_produto == id){
+                    this.produtos.splice(i,1) //remove o produto da lista produtos
+                }
+            }
+
+            console.log("\nProduto excluido com sucesso!\n")
         }
     }
 }
