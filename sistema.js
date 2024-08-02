@@ -1,31 +1,17 @@
-var requisicao = require('readline-sync');
-input = requisicao.question('escreva a pergunta aqui');
-
-//setando variáveis para definir os IDs de forma que cada instancia possua um ID único
-var id_funcionarios = 0
-var id_clientes = 0
-var id_pedidos = 0
-
-// Para armazenar os dados ao decorrer do uso do sistema
-var clientes = []
-var produtos = []
-var funcionarios = []
-var pedidos = []
+var input = require('readline-sync');
 
 class Pedido{
-    constructor(id_cliente, status, data){
-        this.id_pedido = id_pedidos;
-        id_pedidos++;
-        this.ID_Cliente = ID_Cliente;
+    constructor(id_pedido, id_cliente, status, data){
+        this.id_pedido = id_pedido;
+        this.id_cliente = id_cliente;
         this.status = status;
         this.data = data;
     }
 }
 
 class Funcionario{
-    constructor(nome, cpf, email, senha){
-        this.id_funcionario = id_funcionarios;
-        id_funcionarios++;
+    constructor(id_funcionario, nome, cpf, email, senha){
+        this.id_funcionario = id_funcionario;
         this.nome = nome;
         this.cpf = cpf;
         this.email = email;
@@ -34,9 +20,8 @@ class Funcionario{
 }
 
 class Cliente{
-    constructor(nome, nascimento, cpf, email, senha){
-        this.id_cliente = id_clientes;
-        id_clientes++;
+    constructor(id_cliente, nome, nascimento, cpf, email, senha){
+        this.id_cliente = id_cliente;
         this.nome = nome;
         this.nascimento = nascimento;
         this.cpf = cpf;
@@ -57,69 +42,89 @@ class Produtos{
 
 class Sistema{
     constructor(){
+        // Para armazenar os dados ao decorrer do uso do sistema
         this.logado = false;
+
+        this.clientes = [];
+        this.produtos = [];
+        this.funcionarios = [];
+        this.pedidos = [];
+
+        //setando variáveis para definir os IDs de forma que cada instancia possua um ID único
+        this.id_funcionarios = 0
+        this.id_clientes = 0
+        this.id_pedidos = 0
     }
 
     cadastro(){
         //Verifico que tipo de conta a pessoa quer criar
-        let tipo = input.question("Para criar uma conta do tipo cliente digite 1, para criar uma conta do tipo funcionário digite 2\n")
+        console.log("-------------------------------------Àrea de Cadastro-------------------------------------")
+        console.log("1. Criar uma conta Cliente\n2. Criar uma conta Funcionário\n3. Voltar para a aba anterior\n")
+        let tipo = input.question("Selecione uma opcao: ")
+
+        let nome;
+        let nascimento;
+        let cpf;
+        let email;
+        let senha;
 
         //Caso seja um cliente criando a conta
-        if (tipo == "1"){
-            let nome = input.question("Digite o seu nome:\n");
-            let nascimento = input.question("Digite a sua data de nascimento no formato dd/mm/aaa:\n");
-            let cpf = input.question("Digite o seu CPF no formato xxx.xxx.xxx-xx:\n");
-            let email = input.question("Digite o seu melhor email:\n");
-            let senha = input.question("Crie uma senha:");
-            
-            let cliente = new Cliente(nome, nascimento, cpf, email, senha);
+        switch(tipo){
+            case "1":
+                console.log("-------------------------------------Cadastrando um Cliente-------------------------------------")
+                nome = input.question("Digite o seu nome: ");
+                nascimento = input.question("Digite a sua data de nascimento (dd/mm/aaa): ");
+                cpf = input.question("Digite o seu CPF (xxx.xxx.xxx-xx): ");
+                email = input.question("Digite o seu melhor email: ");
+                senha = input.question("Crie uma senha: ");
 
-            clientes.push(cliente);
+                this.clientes.push(new Cliente(this.id_clientes, nome, nascimento, cpf, email, senha));
+                this.id_clientes++;
 
-            return console.log("Usuário cadastrado com sucesso!")
-        }
+                return console.log("\nUsuário cadastrado com sucesso!")
 
-        //Caso seja um funcionário criando a conta
-        else if (tipo == "2"){
-            let nome = input.question("Digite o seu nome:\n");
-            let cpf = input.question("Digite o seu CPF no formato xxx.xxx.xxx-xx:\n");
-            let email = input.question("Digite o seu melhor email:\n");
-            let senha = input.question("Crie uma senha:");
-            
-            let funcionario = new Funcionario(nome, cpf, email, senha);
+            case "2":
+                console.log("-------------------------------------Cadastrando um funcionário-------------------------------------")
+                nome = input.question("Digite o seu nome: ");
+                cpf = input.question("Digite o seu CPF no formato xxx.xxx.xxx-xx: ");
+                email = input.question("Digite o seu melhor email: ");
+                senha = input.question("Crie uma senha: ");
 
-            funcionarios.push(funcionario);
+                this.funcionarios.push(new Funcionario(this.id_funcionarios, nome, cpf, email, senha));
+                this.id_funcionarios++;
 
-            return console.log("Usuário cadastrado com sucesso!")
-        }
+                return console.log("\nUsuário cadastrado com sucesso!")
 
-        //Caso a pessoa tenha digitado qualquer outra coisa
-        else{
-            return console.log("Opção não encontrada.")
+            case "3":
+                break
+
+            default:
+                console.log('Opção não encontrada, retornando ao menu inicial..')
         }
     }
 
     login(){
-        let email = input.question("Digite o seu email:");
-        let senha = input.question("Digite a sua senha:");
+        console.log("-------------------------------------Àrea de login!-------------------------------------")
+        let email = input.question("Digite o seu email: ");
+        let senha = input.question("Digite a sua senha: ");
         let verificacao_conta = false;
         let verificacao_email = false;
 
         //percorre todas as instancias de clientes cadastrados e verifica se o email e senha digitados são compativeis com o de alguma conta
-        for (i = 0; i < (length(clientes)); i++){
-            if (email == clientes[i].email){
+        for (let i = 0; i < (this.clientes.length); i++){
+            if (email == this.clientes[i].email){
                 verificacao_email = true;
-                if (senha == clientes[i].senha){
+                if (senha == this.clientes[i].senha){
                     verificacao_conta = true;
                 }
             }
         }
 
         //percorre todas as instancias de funcionários cadastrados e verifica se o email e senha digitados são compativeis com o de alguma conta
-        for (i = 0; i < (length(funcionarios)); i++){
-            if (email == funcionarios[i].email){
+        for (let i = 0; i < (this.funcionarios.length); i++){
+            if (email == this.funcionarios[i].email){
                 verificacao_email = true;
-                if (senha == funcionarios[i].senha){
+                if (senha == this.funcionarios[i].senha){
                     verificacao_conta = true;
                 }
             }
@@ -128,18 +133,18 @@ class Sistema{
         // verifica se alguma conta com esse email e senha foi encontrada
         if (verificacao_conta == true){
             this.logado = true
-            return console.log("Conta acessada com sucesso!")
+            return console.log("\nConta acessada com sucesso!")
         }
 
         else{
             // informa que o email digitado não foi cadastrado no banco de dados
             if (verificacao_email == false){
-                return console.log("Email não encontrado.")
+                return console.log("\nEmail não encontrado.")
             }
 
             //informa que a conta existe, mas a senha está incorreta
             else{
-                return console.log("Senha incorreta.")
+                return console.log("\nSenha incorreta.")
             }
         }
     }
@@ -151,13 +156,14 @@ class Sistema{
 }
 
 
+console.log("Iniciando o sistema...\n")
 ligado = true;
 var sistema = new Sistema();
-console.log("Bem vindo ao nosso sistema!")
 
 while (ligado){
-    console.log("Opções disponíveis:\n 1. Fazer Login\n 2. Cadastrar um novo usuário\n 3. Sair\n")
-    let opcao = input.question("Selecione uma opção:");
+    console.log("-------------------------------------Selecione uma opção abaixo-------------------------------------")
+    console.log("1. Fazer Login\n2. Cadastrar um novo usuário\n3. Encerrar o sistema\n")
+    let opcao = input.question("Selecione uma opcao: ");
 
     switch(opcao){
         case "1":
@@ -174,7 +180,7 @@ while (ligado){
             break
         
         default:
-            console.log("Opção não encontrada, tente novamente.");
+            console.log("Opção não encontrada, tente novamente.\n");
             break
     }
 }
