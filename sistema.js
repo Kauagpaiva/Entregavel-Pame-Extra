@@ -1,4 +1,14 @@
-var input = require('readline-sync');
+const input = require('readline-sync');
+const fs = require('fs');
+
+// function ler_dados(arquivo){
+
+// }
+
+// function publicar_dados(dados, arquivo){
+//     fs.writeFileSync(arquivo, JSON.stringify(dados, null, 2));
+// }
+
 
 class Pedido{
     constructor(id_pedido, id_cliente, status, data){
@@ -32,10 +42,11 @@ class Cliente{
     }
 }
 
-class Produtos{
-    constructor(validade, preço, estoque, nome, descricao){
+class Produto{
+    constructor(validade, preco, estoque, nome, descricao, id_produto){
+        this.id_produto = id_produto;
         this.validade = validade;
-        this.preço = preço;
+        this.preco = preco;
         this.estoque = estoque;
         this.nome = nome;
         this.descricao = descricao
@@ -45,17 +56,50 @@ class Produtos{
 class Sistema{
     constructor(){
         // Para armazenar os dados ao decorrer do uso do sistema
+        this.acessado = false
         this.clientes = [];
         this.produtos = [];
         this.funcionarios = [];
         this.pedidos = [];
 
         //setando variáveis para definir os IDs de forma que cada instancia possua um ID único
-        this.id_funcionarios = 0
-        this.id_clientes = 0
-        this.id_pedidos = 0
+        this.id_funcionarios = 0;
+        this.id_clientes = 0;
+        this.id_pedidos = 0;
+        this.id_clientes = 0;
     }
 
+    iniciar(){
+        while (this.acessado == false){
+            console.log("-------------------------------------Selecione uma opção abaixo-------------------------------------")
+            console.log("1. Fazer Login\n2. Cadastrar um novo usuário\n3. Encerrar o sistema\n")
+            var opcao = input.question("Selecione uma opcao: ");
+        
+            switch(opcao){
+                case "1":
+                    var usuario = sistema.login();
+                    sistema.abrir_pagina_usuario(usuario);
+                    break
+        
+                case "2":
+                    sistema.cadastro();
+                    break
+        
+                case "3":
+                    sistema.sair()
+                    ligado = false
+                    break
+                
+                default:
+                    console.log("Opção não encontrada, tente novamente.\n");
+                    break
+            }
+        }
+    }
+
+    ler_dados_clientes(){
+
+    }
     cadastro(){
         //Verifico que tipo de conta a pessoa quer criar
         console.log("-------------------------------------Àrea de Cadastro-------------------------------------")
@@ -79,6 +123,7 @@ class Sistema{
                 senha = input.question("Crie uma senha: ");
 
                 this.clientes.push(new Cliente(this.id_clientes, nome, nascimento, cpf, email, senha));
+                this.clientes.sort((a, b) => a.nome.localeCompare(b.nome));
                 this.id_clientes++;
 
                 return console.log("\nUsuário cadastrado com sucesso!")
@@ -91,6 +136,7 @@ class Sistema{
                 senha = input.question("Crie uma senha: ");
 
                 this.funcionarios.push(new Funcionario(this.id_funcionarios, nome, cpf, email, senha));
+                this.funcionarios.sort((a, b) => a.nome.localeCompare(b.nome)); 
                 this.id_funcionarios++;
 
                 return console.log("\nUsuário cadastrado com sucesso!")
@@ -116,6 +162,7 @@ class Sistema{
                 verificacao_email = true;
                 if (senha == this.clientes[i].senha){
                     console.log("\nConta acessada com sucesso!")
+                    this.acessado = true;
                     return this.clientes[i];
                 }
             }
@@ -127,6 +174,7 @@ class Sistema{
                 verificacao_email = true;
                 if (senha == this.funcionarios[i].senha){
                     console.log("\nConta acessada com sucesso!")
+                    this.acessado = true;
                     return this.funcionarios[i];
                 }
             }
@@ -160,16 +208,18 @@ class Sistema{
                 console.log(opcao)
 
                 switch(opcao){
-                    case "1":
+                    case "1": // Lendo os dados
                         console.log("-------------------------------------Seus dados-------------------------------------")
                         console.log(`Nome: ${usuario.nome} \nData de Nascimento: ${usuario.nascimento} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nSenha: ${usuario.senha} \nID: ${usuario.id_cliente}`)
                         break
                         
 
-                    case "2":
+                    case "2": //Modificando os dados
+                        this.modificar_dados(usuario);
                         break
 
                     case "3":
+                        this.ver_produtos();
                         break
                     case "4":
                         break
@@ -213,14 +263,20 @@ class Sistema{
                     case 3:
 
                     case 4:
+                        this.ver_produtos();
+                        break
 
                     case 5:
 
                     case 6:
 
                     case 7:
+                        this.adicionar_produto();
+                        break
 
                     case 8:
+                        this.editar_produto();
+                        break
 
                     case 9:
 
@@ -243,74 +299,180 @@ class Sistema{
                 opcao = input.question("Selecione uma opcao: ");
 
                 switch(opcao){
-                    case 1:
+                    case "1":
+                        novo_dado = input.question("Digite o novo nome: ")
+                        usuario.nome = novo_dado;
+                        this.atualizar_no_sistema(usuario)
+                        this.clientes.sort((a, b) => a.nome.localeCompare(b.nome)); //deixa a lista em ordem alfabética
                         break
-                    case 2:
+
+                    case "2":
+                        novo_dado = input.question("Digite a nova data de nascimento: ")
+                        usuario.nascimento = novo_dado;
+                        this.atualizar_no_sistema(usuario)
                         break
-                    case 3:
+
+                    case "3":
+                        novo_dado = input.question("Digite o novo CPF: ")
+                        usuario.cpf = novo_dado;
+                        this.atualizar_no_sistema(usuario)
                         break
-                    case 4:
+
+                    case "4":
+                        novo_dado = input.question("Digite o novo email: ")
+                        usuario.email = novo_dado;
+                        this.atualizar_no_sistema(usuario)
                         break
-                    case 5:
+
+                    case "5":
+                        novo_dado = input.question("Digite o nova senha: ")
+                        usuario.senha = novo_dado;
+                        this.atualizar_no_sistema(usuario)
                         break
+
                     default:
                         console.log("Opcao não encontrada.");
                         break
                 }
+                break
 
             case "Funcionário":
                 console.log("1. Nome\n2. CPF\n3. Email\n4. Senha");
                 opcao = input.question("Selecione uma opcao: ");
 
                 switch(opcao){
-                    case 1:
+                    case "1": //atualizando o nome
+                        novo_dado = input.question("Digite o novo nome: ")
+                        usuario.nome = novo_dado;
+                        this.atualizar_no_sistema(usuario)
                         break
-                    case 2:
+
+                    case "2": //atualizando o cpf
+                        novo_dado = input.question("Digite o novo CPF: ")
+                        usuario.cpf = novo_dado;
+                        this.atualizar_no_sistema(usuario)
                         break
-                    case 3:
+
+                    case "3": //atualizando o email
+                        novo_dado = input.question("Digite o novo email: ")
+                        usuario.email = novo_dado;
+                        this.atualizar_no_sistema(usuario)
                         break
-                    case 4:
+
+                    case "4": //atualizando a senha
+                    novo_dado = input.question("Digite o nova senha: ")
+                        usuario.senha = novo_dado;
+                        this.atualizar_no_sistema(usuario)
                         break
+
                     default:
                         console.log("Opcao não encontrada.");
                         break
                 }
+                break
 
             default:
                 break
         }
     }
-}
 
+    
+    atualizar_no_sistema(usuario){ //método para atualizar os usuários no banco de dados local
+        switch(usuario.tipo){
+            case "Cliente":
+                for (let i = 0; i < this.clientes.length; i++){
+                    if (this.clientes[i].id_cliente == usuario.id_cliente){
+                        this.clientes[i] = usuario;
+                        console.log("Usuário atualizado com sucesso.")
+                    }
+                }  
+                break
 
-console.log("Iniciando o sistema...\n")
-ligado = true;
-var sistema = new Sistema();
+            case "Funcionário":
+                for (let i = 0; i < this.funcionarios.length; i++){
+                    if (this.funcionarios[i].id_funcionario == usuario.id_funcionario){
+                        this.funcionarios[i] = usuario;
+                        console.log("Usuário atualizado com sucesso.")
+                    }
+                } 
+                break
+            
+            default:
+                console.log("Erro ao atualizar usuário.")
+                break
+        }
+    }
 
-while (ligado){
-    console.log("-------------------------------------Selecione uma opção abaixo-------------------------------------")
-    console.log("1. Fazer Login\n2. Cadastrar um novo usuário\n3. Encerrar o sistema\n")
-    var opcao = input.question("Selecione uma opcao: ");
+    ver_produtos(){
+        console.log("-------------------------------------Lista de Produtos-------------------------------------");
+        if (this.produtos.length == 0){
+            console.log("Nenhum produto encontrado.")
+        }
+        else{
+            for (let produto of this.produtos){
+                console.log(`Nome: ${produto.nome}\nPreço: ${produto.preco}\nValidade: ${produto.validade}\nEstoque: ${produto.estoque}\nDescricao: ${produto.descricao}\n\n`)
+            }
+        }
+    }
 
-    switch(opcao){
-        case "1":
-            var usuario = sistema.login();
-            sistema.abrir_pagina_usuario(usuario);
-            break
+    adicionar_produto(){
+        console.log("-------------------------------------Adicionar um novo produto à loja-------------------------------------");
+        let nome = input.question("Digite o nome do produto: ");
+        let preco = input.question("Digite o preco do produto: ");
+        let validade = input.question("Digite a validade do produto: ");
+        let estoque = input.question("Digite a quantidade em estoque: ");
+        let descricao = input.question("Digite a descricao do produto: ");
 
-        case "2":
-            sistema.cadastro();
-            break
+        this.produtos.push(Produto(validade, preco, estoque, nome, descricao, id_produtos));
+        id_produtos++;
 
-        case "3":
-            sistema.sair()
-            ligado = false
-            break
-        
-        default:
-            console.log("Opção não encontrada, tente novamente.\n");
-            break
+        this.produtos.sort((a, b) => a.nome.localeCompare(b.nome)); //deixando a lista sempre em ordem alfabética
+
+        console.log("\nProduto adicionado com sucesso.\n")
+    }
+
+    editar_produto(){
+        console.log("-------------------------------------Editar produto-------------------------------------");
+        if (this.produtos.length == 0){
+            console.log("Nenhum produto encontrado.\n")
+        }
+
+        else{
+            for (let produto of produtos){
+                console.log(`ID: ${produto.id_produto}\nNome: ${produto.nome}\nPreço: ${produto.preco}\nValidade: ${produto.validade}\nEstoque: ${produto.estoque}\nDescricao: ${produto.descricao}\n\n`)
+            }
+
+            let id = input.question("Digite o ID do produto que você deseja editar: ")
+            let nome = input.question("Digite o novo nome do produto: ");
+            let preco = input.question("Digite o novo preco do produto: ");
+            let validade = input.question("Digite a nova validade do produto: ");
+            let estoque = input.question("Digite a nova quantidade em estoque: ");
+            let descricao = input.question("Digite a nova descricao do produto: ");
+
+            for (let i = 0; i<this.produtos.length; i++){
+                if (this.produtos[i].id_produto == id){
+                    this.produtos[i].nome = nome;
+                    this.produtos[i].preco = preco;
+                    this.produtos[i].validade = validade;
+                    this.produtos[i].estoque = estoque;
+                    this.produtos[i].descricao = descricao;
+                }
+            }
+        }
     }
 }
+
+
+
+var sistema = new Sistema();
+
+// console.log("Carregando o banco de dados...\n")
+// sistema.ler_dados_clientes();
+// sistema.ler_dados_funcionarios();
+// sistema.ler_dados_pedidos();
+
+console.log("Iniciando o sistema...\n")
+sistema.iniciar();
+
 
 console.log("Sistema encerrado.")
