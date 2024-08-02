@@ -16,6 +16,7 @@ class Funcionario{
         this.cpf = cpf;
         this.email = email;
         this.senha = senha;
+        this.tipo = "Funcionário"
     }
 }
 
@@ -27,6 +28,7 @@ class Cliente{
         this.cpf = cpf;
         this.email = email;
         this.senha = senha;
+        this.tipo = "Cliente"
     }
 }
 
@@ -43,8 +45,6 @@ class Produtos{
 class Sistema{
     constructor(){
         // Para armazenar os dados ao decorrer do uso do sistema
-        this.logado = false;
-
         this.clientes = [];
         this.produtos = [];
         this.funcionarios = [];
@@ -104,18 +104,19 @@ class Sistema{
     }
 
     login(){
-        console.log("-------------------------------------Àrea de login!-------------------------------------")
+        console.log("-------------------------------------Àrea de login-------------------------------------")
         let email = input.question("Digite o seu email: ");
         let senha = input.question("Digite a sua senha: ");
-        let verificacao_conta = false;
         let verificacao_email = false;
+        //let verificacao_tipo_de_conta = null;
 
         //percorre todas as instancias de clientes cadastrados e verifica se o email e senha digitados são compativeis com o de alguma conta
         for (let i = 0; i < (this.clientes.length); i++){
             if (email == this.clientes[i].email){
                 verificacao_email = true;
                 if (senha == this.clientes[i].senha){
-                    verificacao_conta = true;
+                    console.log("\nConta acessada com sucesso!")
+                    return this.clientes[i];
                 }
             }
         }
@@ -125,33 +126,159 @@ class Sistema{
             if (email == this.funcionarios[i].email){
                 verificacao_email = true;
                 if (senha == this.funcionarios[i].senha){
-                    verificacao_conta = true;
+                    console.log("\nConta acessada com sucesso!")
+                    return this.funcionarios[i];
                 }
             }
         }
 
-        // verifica se alguma conta com esse email e senha foi encontrada
-        if (verificacao_conta == true){
-            this.logado = true
-            return console.log("\nConta acessada com sucesso!")
+        // informa que o email digitado não foi cadastrado no banco de dados
+        if (verificacao_email == false){
+            console.log("\nEmail não encontrado.");
+            return null;
         }
 
+        //informa que a conta existe, mas a senha está incorreta
         else{
-            // informa que o email digitado não foi cadastrado no banco de dados
-            if (verificacao_email == false){
-                return console.log("\nEmail não encontrado.")
-            }
-
-            //informa que a conta existe, mas a senha está incorreta
-            else{
-                return console.log("\nSenha incorreta.")
-            }
+            console.log("\nSenha incorreta.");
+            return null;
         }
     }
 
     sair(){
         this.logado = false;
         return console.log("Desconectando do sistema...")
+    }
+
+    abrir_pagina_usuario(usuario){
+        let opcao;
+        switch(usuario.tipo){
+            case "Cliente": // caso o login tenha sido feito em uma conta cliente
+                console.log("-------------------------------------Cliente: Selecione uma opção abaixo-------------------------------------")
+                console.log("1. Ver meus dados\n2. Modificar meus dados\n3. Ver lista de produtos (Ordem alfabética)\n4. Fazer pedido\n5. Cancelar pedido\n6. Ver meus pedidos (Ordem cronológica)\n7. Avaliar pedido\n8. Visualizar avaliações\n9. Sair da conta\n")
+                opcao = input.question("Selecione uma opcao: ");
+                console.log(opcao)
+
+                switch(opcao){
+                    case "1":
+                        console.log("-------------------------------------Seus dados-------------------------------------")
+                        console.log(`Nome: ${usuario.nome} \nData de Nascimento: ${usuario.nascimento} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nSenha: ${usuario.senha} \nID: ${usuario.id_cliente}`)
+                        break
+                        
+
+                    case "2":
+                        break
+
+                    case "3":
+                        break
+                    case "4":
+                        break
+
+                    case "5":
+                        break
+
+                    case "6":
+                        break
+
+                    case "7":
+                        break
+
+                    case "8":
+                        break
+
+                    case "9":
+                        break
+
+                    default:
+                        break
+
+                }
+                break
+
+            case "Funcionário": // caso o login tenha sido feito em uma conta funcionário
+                console.log("-------------------------------------Funcionário: Selecione uma opção abaixo-------------------------------------");
+                console.log("1. Ver meus dados\n2. Modificar meus dados\n3. Ver lista de pedidos (Ordem cronológica)\n4. Ver lista de produtos (Ordem alfabética)\n5.Ver lista de clientes (Ordem Alfabética)\n6. Mudar status do pedido (Pedido pendente, adiado, realizado, cancelado)\n7. Adicionar produto\n8.Editar Produto\n9. Excluir produto\n10. Sair da conta\n");
+                opcao = input.question("Selecione uma opcao: ");
+
+                switch(opcao){
+                    case 1: // ver os dados
+                        console.log("-------------------------------------Seus dados-------------------------------------");
+                        console.log(`Nome: ${usuario.nome} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nSenha: ${usuario.senha} \nID: ${usuario.id_funcionario}`);
+                        break
+
+                    case 2:
+                        this.modificar_dados(usuario);
+                        break
+
+                    case 3:
+
+                    case 4:
+
+                    case 5:
+
+                    case 6:
+
+                    case 7:
+
+                    case 8:
+
+                    case 9:
+
+                    case 10:
+
+                    default:
+
+                }
+
+            default: //caso o login não tenha sido um sucesso
+                break
+        }
+    }
+
+    modificar_dados(usuario){
+        console.log("-------------------------------------Modificar dados-------------------------------------");
+        switch(usuario.tipo){
+            case "Cliente":
+                console.log("1. Nome\n2. Data de Nascimento\n3. CPF\n4. Email\n5. Senha");
+                opcao = input.question("Selecione uma opcao: ");
+
+                switch(opcao){
+                    case 1:
+                        break
+                    case 2:
+                        break
+                    case 3:
+                        break
+                    case 4:
+                        break
+                    case 5:
+                        break
+                    default:
+                        console.log("Opcao não encontrada.");
+                        break
+                }
+
+            case "Funcionário":
+                console.log("1. Nome\n2. CPF\n3. Email\n4. Senha");
+                opcao = input.question("Selecione uma opcao: ");
+
+                switch(opcao){
+                    case 1:
+                        break
+                    case 2:
+                        break
+                    case 3:
+                        break
+                    case 4:
+                        break
+                    default:
+                        console.log("Opcao não encontrada.");
+                        break
+                }
+
+            default:
+                break
+        }
     }
 }
 
@@ -163,11 +290,12 @@ var sistema = new Sistema();
 while (ligado){
     console.log("-------------------------------------Selecione uma opção abaixo-------------------------------------")
     console.log("1. Fazer Login\n2. Cadastrar um novo usuário\n3. Encerrar o sistema\n")
-    let opcao = input.question("Selecione uma opcao: ");
+    var opcao = input.question("Selecione uma opcao: ");
 
     switch(opcao){
         case "1":
-            sistema.login();
+            var usuario = sistema.login();
+            sistema.abrir_pagina_usuario(usuario);
             break
 
         case "2":
