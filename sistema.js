@@ -209,8 +209,7 @@ class Sistema{
 
                 switch(opcao){
                     case "1": // Lendo os dados
-                        console.log("-------------------------------------Seus dados-------------------------------------")
-                        console.log(`Nome: ${usuario.nome} \nData de Nascimento: ${usuario.nascimento} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nSenha: ${usuario.senha} \nID: ${usuario.id_cliente}`)
+                        this.exibir_dados_usuario(usuario);
                         break
                         
 
@@ -252,8 +251,7 @@ class Sistema{
 
                 switch(opcao){
                     case 1: // ver os dados
-                        console.log("-------------------------------------Seus dados-------------------------------------");
-                        console.log(`Nome: ${usuario.nome} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nSenha: ${usuario.senha} \nID: ${usuario.id_funcionario}`);
+                        this.exibir_dados_usuario(usuario);
                         break
 
                     case 2:
@@ -267,6 +265,8 @@ class Sistema{
                         break
 
                     case 5:
+                        this.exibir_clientes();
+                        break
 
                     case 6:
 
@@ -440,7 +440,7 @@ class Sistema{
         }
 
         else{
-            for (let produto of produtos){
+            for (let produto of this.produtos){
                 console.log(`ID: ${produto.id_produto}\nNome: ${produto.nome}\nPreço: ${produto.preco}\nValidade: ${produto.validade}\nEstoque: ${produto.estoque}\nDescricao: ${produto.descricao}\n\n`)
             }
 
@@ -473,7 +473,41 @@ class Sistema{
         }
 
         else{
-            for (let produto of produtos){
+            for (let produto of this.produtos){
+                console.log(`ID: ${produto.id_produto}\nNome: ${produto.nome}\nPreço: ${produto.preco}\nValidade: ${produto.validade}\nEstoque: ${produto.estoque}\nDescricao: ${produto.descricao}\n\n`)
+            }
+
+            let id = input.question("Digite o ID do produto que você deseja excluir: ")
+
+            for (let i = 0; i<this.produtos.length; i++){
+                if (this.produtos[i].id_produto == id){
+                    this.produtos.splice(i,1) //remove o produto da lista produtos
+                }
+            }
+
+            console.log("\nProduto excluido com sucesso!\n")
+        }
+    }
+
+    exibir_dados_usuario(usuario){
+        console.log("-------------------------------------Seus dados-------------------------------------");
+
+        if (usuario.tipo == "Cliente"){
+            console.log(`Nome: ${usuario.nome} \nData de Nascimento: ${usuario.nascimento} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nSenha: ${usuario.senha} \nID: ${usuario.id_cliente}`)
+        }
+        else{
+            console.log(`Nome: ${usuario.nome} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nSenha: ${usuario.senha} \nID: ${usuario.id_funcionario}`);
+        }
+    }
+
+    exibir_clientes(){
+        console.log("-------------------------------------Lista de clientes cadastrados no sistema-------------------------------------");
+        if (this.clientes.length == 0){
+            console.log("Nenhum cliente encontrado.\n")
+        }
+
+        else{
+            for (let cliente of this.clientes){
                 console.log(`ID: ${produto.id_produto}\nNome: ${produto.nome}\nPreço: ${produto.preco}\nValidade: ${produto.validade}\nEstoque: ${produto.estoque}\nDescricao: ${produto.descricao}\n\n`)
             }
 
