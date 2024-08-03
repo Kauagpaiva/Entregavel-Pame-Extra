@@ -1,23 +1,15 @@
 const input = require('readline-sync');
 const fs = require('fs');
 
-// function ler_dados(arquivo){
-
-// }
-
-// function publicar_dados(dados, arquivo){
-//     fs.writeFileSync(arquivo, JSON.stringify(dados, null, 2));
-// }
-
-
 class Pedido{
-    constructor(id_pedido, id_cliente, id_produto, status, data){
+    constructor(id_pedido, id_cliente, id_produto, status, data, quantidade){
         this.id_pedido = id_pedido;
         this.id_cliente = id_cliente;
         this.id_produto = id_produto;
         this.status = status;
         this.data = data;
         this.avaliacao = null;
+        this.quantidade = quantidade;
     }
 }
 
@@ -58,7 +50,8 @@ class Produto{
 class Sistema{
     constructor(){
         // Para armazenar os dados ao decorrer do uso do sistema
-        this.acessado = false
+        this.ligado = false;
+        this.logado = false;
         this.clientes = [];
         this.produtos = [];
         this.funcionarios = [];
@@ -72,24 +65,29 @@ class Sistema{
     }
 
     iniciar(){
-        while (this.acessado == false){
-            console.log("-------------------------------------Selecione uma opção abaixo-------------------------------------")
+        this.ligado = true
+        while (this.ligado == true){
+            console.log("-------------------------------------Menu Inicial: Selecione uma opção abaixo-------------------------------------")
             console.log("1. Fazer Login\n2. Cadastrar um novo usuário\n3. Encerrar o sistema\n")
             var opcao = input.question("Selecione uma opcao: ");
         
             switch(opcao){
                 case "1":
                     var usuario = sistema.login();
-                    sistema.abrir_pagina_usuario(usuario);
-                    break
+                    if (usuario != null){
+                        sistema.abrir_pagina_usuario(usuario);
+                        break
+                    }
+                    else{
+                        break
+                    }
         
                 case "2":
                     sistema.cadastro();
                     break
         
                 case "3":
-                    sistema.sair()
-                    ligado = false
+                    this.ligado = false
                     break
                 
                 default:
@@ -105,50 +103,55 @@ class Sistema{
     cadastro(){
         //Verifico que tipo de conta a pessoa quer criar
         console.log("-------------------------------------Àrea de Cadastro-------------------------------------")
-        console.log("1. Criar uma conta Cliente\n2. Criar uma conta Funcionário\n3. Voltar para a aba anterior\n")
-        let tipo = input.question("Selecione uma opcao: ")
 
-        let nome;
-        let nascimento;
-        let cpf;
-        let email;
-        let senha;
+        while (true){
+            console.log("1. Criar uma conta Cliente\n2. Criar uma conta Funcionário\n3. Voltar para a aba anterior\n")
+            let tipo = input.question("Selecione uma opcao: ")
 
-        //Caso seja um cliente criando a conta
-        switch(tipo){
-            case "1":
-                console.log("-------------------------------------Cadastrando um Cliente-------------------------------------")
-                nome = input.question("Digite o seu nome: ");
-                nascimento = input.question("Digite a sua data de nascimento (dd/mm/aaa): ");
-                cpf = input.question("Digite o seu CPF (xxx.xxx.xxx-xx): ");
-                email = input.question("Digite o seu melhor email: ");
-                senha = input.question("Crie uma senha: ");
+            let nome;
+            let nascimento;
+            let cpf;
+            let email;
+            let senha;
 
-                this.clientes.push(new Cliente(this.id_clientes, nome, nascimento, cpf, email, senha));
-                this.clientes.sort((a, b) => a.nome.localeCompare(b.nome));
-                this.id_clientes++;
+            //Caso seja um cliente criando a conta
+            switch(tipo){
+                case "1":
+                    console.log("-------------------------------------Cadastrando um Cliente-------------------------------------")
+                    nome = input.question("Digite o seu nome: ");
+                    nascimento = input.question("Digite a sua data de nascimento (dd/mm/aaa): ");
+                    cpf = input.question("Digite o seu CPF (xxx.xxx.xxx-xx): ");
+                    email = input.question("Digite o seu melhor email: ");
+                    senha = input.question("Crie uma senha: ");
 
-                return console.log("\nUsuário cadastrado com sucesso!")
+                    this.clientes.push(new Cliente(this.id_clientes, nome, nascimento, cpf, email, senha));
+                    this.clientes.sort((a, b) => a.nome.localeCompare(b.nome));
+                    this.id_clientes++;
 
-            case "2":
-                console.log("-------------------------------------Cadastrando um funcionário-------------------------------------")
-                nome = input.question("Digite o seu nome: ");
-                cpf = input.question("Digite o seu CPF no formato xxx.xxx.xxx-xx: ");
-                email = input.question("Digite o seu melhor email: ");
-                senha = input.question("Crie uma senha: ");
+                    return console.log("\nUsuário cadastrado com sucesso!")
 
-                this.funcionarios.push(new Funcionario(this.id_funcionarios, nome, cpf, email, senha));
-                this.funcionarios.sort((a, b) => a.nome.localeCompare(b.nome)); 
-                this.id_funcionarios++;
+                case "2":
+                    console.log("-------------------------------------Cadastrando um funcionário-------------------------------------")
+                    nome = input.question("Digite o seu nome: ");
+                    cpf = input.question("Digite o seu CPF no formato xxx.xxx.xxx-xx: ");
+                    email = input.question("Digite o seu melhor email: ");
+                    senha = input.question("Crie uma senha: ");
 
-                return console.log("\nUsuário cadastrado com sucesso!")
+                    this.funcionarios.push(new Funcionario(this.id_funcionarios, nome, cpf, email, senha));
+                    this.funcionarios.sort((a, b) => a.nome.localeCompare(b.nome)); 
+                    this.id_funcionarios++;
 
-            case "3":
-                break
+                    return console.log("\nUsuário cadastrado com sucesso!")
 
-            default:
-                console.log('Opção não encontrada, retornando ao menu inicial..')
+                case "3":
+                    return console.log("\nRetornando para o menu principal.")
+
+                default:
+                    console.log('Opção não encontrada, tente novamente..\n--------\n') // permanece no while até digitar uma opção válida
+                    break
+            }
         }
+        
     }
 
     login(){
@@ -164,7 +167,7 @@ class Sistema{
                 verificacao_email = true;
                 if (senha == this.clientes[i].senha){
                     console.log("\nConta acessada com sucesso!")
-                    this.acessado = true;
+                    this.logado = true;
                     return this.clientes[i];
                 }
             }
@@ -176,7 +179,7 @@ class Sistema{
                 verificacao_email = true;
                 if (senha == this.funcionarios[i].senha){
                     console.log("\nConta acessada com sucesso!")
-                    this.acessado = true;
+                    this.logado = true;
                     return this.funcionarios[i];
                 }
             }
@@ -196,7 +199,7 @@ class Sistema{
     }
 
     sair(){
-        this.logado = false;
+        this.ligado = false;
         return console.log("Desconectando do sistema...")
     }
 
@@ -204,103 +207,115 @@ class Sistema{
         let opcao;
         switch(usuario.tipo){
             case "Cliente": // caso o login tenha sido feito em uma conta cliente
-                console.log("-------------------------------------Cliente: Selecione uma opção abaixo-------------------------------------")
-                console.log("1. Ver meus dados\n2. Modificar meus dados\n3. Ver lista de produtos (Ordem alfabética)\n4. Fazer pedido\n5. Cancelar pedido\n6. Ver meus pedidos (Ordem cronológica)\n7. Avaliar pedido\n8. Visualizar avaliações\n9. Sair da conta\n")
-                opcao = input.question("Selecione uma opcao: ");
-                console.log(opcao)
+                while (this.logado){
+                    console.log("-------------------------------------Cliente: Selecione uma opção abaixo-------------------------------------")
+                    console.log("1. Ver meus dados\n2. Modificar meus dados\n3. Ver lista de produtos (Ordem alfabética)\n4. Fazer pedido\n5. Cancelar pedido\n6. Ver meus pedidos (Ordem cronológica)\n7. Avaliar pedido\n8. Visualizar avaliações\n9. Sair da conta\n")
+                    opcao = input.question("Selecione uma opcao: ");
+                    console.log(opcao)
 
-                switch(opcao){
-                    case "1": // Lendo os dados
-                        this.exibir_dados_usuario(usuario);
-                        break
-                        
+                    switch(opcao){
+                        case "1": // Lendo os dados
+                            this.exibir_dados_usuario(usuario);
+                            break
+                            
 
-                    case "2": //Modificando os dados
-                        this.modificar_dados(usuario);
-                        break
+                        case "2": //Modificando os dados
+                            this.modificar_dados(usuario);
+                            break
 
-                    case "3":
-                        this.ver_produtos();
-                        break
+                        case "3":
+                            this.exibir_produtos();
+                            break
 
-                    case "4":
-                        this.fazer_pedido(cliente);
-                        break
+                        case "4":
+                            this.fazer_pedido(cliente);
+                            break
 
-                    case "5":
-                        this.cancelar_pedido(usuario);
-                        break
+                        case "5":
+                            this.cancelar_pedido(usuario);
+                            break
 
-                    case "6":
-                        this.ver_pedidos_cliente(usuario);
-                        break
+                        case "6":
+                            this.exibir_pedidos_cliente(usuario);
+                            break
 
-                    case "7":
-                        this.avaliar_pedido(usuario);
-                        break
+                        case "7":
+                            this.avaliar_pedido(usuario);
+                            break
 
-                    case "8":
-                        this.exibir_avaliacoes(usuario);
-                        break
+                        case "8":
+                            this.exibir_avaliacoes(usuario);
+                            break
 
-                    case "9":
-                        break
+                        case "9":
+                            this.logado = false;
+                            console.log("Desconectando da conta..")
+                            break
 
-                    default:
-                        break
-
+                        default:
+                            console.log("Opcao nao encontrada tente novamente.")
+                            break
+                    }
                 }
                 break
 
             case "Funcionário": // caso o login tenha sido feito em uma conta funcionário
-                console.log("-------------------------------------Funcionário: Selecione uma opção abaixo-------------------------------------");
-                console.log("1. Ver meus dados\n2. Modificar meus dados\n3. Ver lista de pedidos (Ordem cronológica)\n4. Ver lista de produtos (Ordem alfabética)\n5.Ver lista de clientes (Ordem Alfabética)\n6. Mudar status do pedido (Pedido pendente, adiado, realizado, cancelado)\n7. Adicionar produto\n8.Editar Produto\n9. Excluir produto\n10. Sair da conta\n");
-                opcao = input.question("Selecione uma opcao: ");
+                while(this.logado){
+                    console.log("-------------------------------------Funcionário: Selecione uma opção abaixo-------------------------------------");
+                    console.log("1. Ver meus dados\n2. Modificar meus dados\n3. Ver lista de pedidos (Ordem cronológica)\n4. Ver lista de produtos (Ordem alfabética)\n5.Ver lista de clientes (Ordem Alfabética)\n6. Mudar status do pedido (Pedido pendente, adiado, realizado, cancelado)\n7. Adicionar produto\n8.Editar Produto\n9. Excluir produto\n10. Sair da conta\n");
+                    opcao = input.question("Selecione uma opcao: ");
 
-                switch(opcao){
-                    case "1": // ver os dados
-                        this.exibir_dados_usuario(usuario);
-                        break
+                    switch(opcao){
+                        case "1": // ver os dados
+                            this.exibir_dados_usuario(usuario);
+                            break
 
-                    case "2":
-                        this.modificar_dados(usuario);
-                        break
+                        case "2":
+                            this.modificar_dados(usuario);
+                            break
 
-                    case "3":
-                        this.exibir_pedidos();
-                        break
+                        case "3":
+                            this.exibir_pedidos();
+                            break
 
-                    case "4":
-                        this.ver_produtos();
-                        break
+                        case "4":
+                            this.exibir_produtos();
+                            break
 
-                    case "5":
-                        this.exibir_clientes();
-                        break
+                        case "5":
+                            this.exibir_clientes();
+                            break
 
-                    case "6":
-                        this.modificar_status_pedido();
-                        break
+                        case "6":
+                            this.modificar_status_pedido();
+                            break
 
-                    case "7":
-                        this.adicionar_produto();
-                        break
+                        case "7":
+                            this.adicionar_produto();
+                            break
 
-                    case "8":
-                        this.editar_produto();
-                        break
+                        case "8":
+                            this.editar_produto();
+                            break
 
-                    case "9":
-                        this.excluir_produto();
-                        break
+                        case "9":
+                            this.excluir_produto();
+                            break
 
-                    case "10":
+                        case "10":
+                            this.logado = false;
+                            console.log("Desconectando da conta...")
+                            break
 
-                    default:
+                        default:
+                            console.log("Opcao nao encontrada tente novamente.")
+                            break
 
+                    }
                 }
 
             default: //caso o login não tenha sido um sucesso
+                console.log("Erro ao logar na conta..")
                 break
         }
     }
@@ -313,39 +328,39 @@ class Sistema{
                 opcao = input.question("Selecione uma opcao: ");
 
                 switch(opcao){
-                    case "1":
+                    case "1": //atualizando o nome do cliente
                         novo_dado = input.question("Digite o novo nome: ")
                         usuario.nome = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         this.clientes.sort((a, b) => a.nome.localeCompare(b.nome)); //deixa a lista em ordem alfabética
                         break
 
-                    case "2":
+                    case "2": //atualizando a data de nascimento do cliente
                         novo_dado = input.question("Digite a nova data de nascimento: ")
                         usuario.nascimento = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
 
-                    case "3":
+                    case "3": //atualizando o cpf do cliente
                         novo_dado = input.question("Digite o novo CPF: ")
                         usuario.cpf = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
 
-                    case "4":
+                    case "4": //atualizando o email do cliente
                         novo_dado = input.question("Digite o novo email: ")
                         usuario.email = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
 
-                    case "5":
+                    case "5": //atualizando a senha do cliente
                         novo_dado = input.question("Digite o nova senha: ")
                         usuario.senha = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
 
-                    default:
-                        console.log("Opcao não encontrada.");
+                    default: //caso a pessoa tenha digitado uma opção incorreta volta para a aba anterior
+                        console.log("Opcao não encontrada. Voltando para o menu principal.\n");
                         break
                 }
                 break
@@ -379,13 +394,14 @@ class Sistema{
                         this.atualizar_no_sistema(usuario)
                         break
 
-                    default:
-                        console.log("Opcao não encontrada.");
+                    default: //voltando pro menu principal
+                        console.log("Opcao não encontrada. Voltando para o menu principal.\n");
                         break
                 }
                 break
 
             default:
+                console.log("Falha ao modificar os dados")
                 break
         }
     }
@@ -417,7 +433,7 @@ class Sistema{
         }
     }
 
-    ver_produtos(){
+    exibir_produtos(){
         console.log("-------------------------------------Lista de Produtos-------------------------------------");
         if (this.produtos.length == 0){
             console.log("Nenhum produto encontrado.")
@@ -507,10 +523,10 @@ class Sistema{
         console.log("-------------------------------------Seus dados-------------------------------------");
 
         if (usuario.tipo == "Cliente"){
-            console.log(`Nome: ${usuario.nome} \nData de Nascimento: ${usuario.nascimento} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nSenha: ${usuario.senha} \nID: ${usuario.id_cliente}`)
+            console.log(`Nome: ${usuario.nome} \nData de Nascimento: ${usuario.nascimento} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nID: ${usuario.id_cliente}`)
         }
         else{
-            console.log(`Nome: ${usuario.nome} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \nSenha: ${usuario.senha} \nID: ${usuario.id_funcionario}`);
+            console.log(`Nome: ${usuario.nome} \nCPF: ${usuario.cpf} \nEmail: ${usuario.email} \n\nID: ${usuario.id_funcionario}`);
         }
     }
 
@@ -522,7 +538,7 @@ class Sistema{
 
         else{
             for (let cliente of this.clientes){
-                console.log(`\n--------\nNome: ${cliente.nome} \nData de Nascimento: ${cliente.nascimento} \nCPF: ${cliente.cpf} \nEmail: ${cliente.email} \nID: ${cliente.id_cliente}\n--------\n`)
+                console.log(`Nome: ${cliente.nome} \nData de Nascimento: ${cliente.nascimento} \nCPF: ${cliente.cpf} \nEmail: ${cliente.email} \nID: ${cliente.id_cliente}\n--------`)
             }
         }
     }
@@ -535,7 +551,7 @@ class Sistema{
 
         else{
             for (let pedido of this.pedidos){
-                console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
+                console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nID do produto: ${pedido.id_produto}Status: ${pedido.status}\nData: ${pedido.data}\nQuantidade: ${pedido.quantidade}`)
             }
         }
     }
@@ -548,7 +564,7 @@ class Sistema{
 
         else{
             for (let pedido of this.pedidos){
-                console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
+                console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nID do produto: ${pedido.id_produto}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
             }
 
             let id = input.question("Digite o ID do pedido que você deseja alterar o status: ");
@@ -574,7 +590,7 @@ class Sistema{
                     break
 
                 default:
-                    console.log("Opcao não encontrada")
+                    console.log("Opcao não encontrada.")
                     break
             }
             if(novo_status != null){
@@ -586,7 +602,7 @@ class Sistema{
                 }
             }
             else{
-                return console.log("\nErro ao alterar o status do pedido\n")
+                return console.log("Voltando para o menu inicial.\n")
             }
         }
     }
@@ -594,75 +610,91 @@ class Sistema{
     cancelar_pedido(cliente){
         console.log("-------------------------------------Cancelar um pedido-------------------------------------");
         if (this.pedidos.length == 0){
-            console.log("Nenhum pedido encontrado.\n")
+            console.log("Nenhum pedido encontrado. Voltando ao menu inicial.\n")
         }
 
         else{
             for (let pedido of this.pedidos){
-                if (pedido.id_cliente == cliente.id_cliente){
-                    console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
+                if (pedido.id_cliente == cliente.id_cliente && pedido.id_pedido != "Realizado"){
+                    console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nID do produto: ${pedido.id_produto}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
                 }
             }
 
             let id = input.question("Digite o ID do pedido que você deseja cancelar: ");
-            let confirmacao = input.question("Tem certeza que deseja cancelar este pedido? (Digite s ou n) ");
+            let confirmacao = input.question("Tem certeza que deseja cancelar este pedido? (s/n) ");
 
             if (confirmacao == "s"){
                 for (let i = 0; i<this.pedidos.length; i++){
-                    if (this.pedidos[i].id_pedido == id){
+                    if (this.pedidos[i].id_pedido == id && this.pedidos[i].id_cliente == cliente.id_cliente){
                         this.pedidos[i].status = "Cancelado";
                         return console.log("\nPedido cancelado com sucesso\n")
                     }
                 }
-                return console.log("\nID não encontrado\n")
+                return console.log("\nID não encontrado. Voltando ao menu inicial\n")
             }
 
-            return console.log("\n Pedido não cancelado \n")
+            return console.log("\nPedido não cancelado. Voltando ao menu inicial.\n")
         }
     }
     fazer_pedido(cliente){
-        console.log("-------------------------------------Fazer pedido-------------------------------------");
+        console.log("-------------------------------------Fazer pedido-------------------------------------\n");
+        while(true){
+            this.exibir_produtos()
+            let id = input.question("Digite o ID do produto que você deseja comprar: ")
+            let quantidade = input.question("Digite a quantidade de produto que voce deseja comprar: ")
 
-        let id = input.question("Digite o ID do produto que você deseja comprar: ")
+            // Cria um novo objeto Date com a data e hora atuais
+            let hoje = new Date();
 
-        // Cria um novo objeto Date com a data e hora atuais
-        let hoje = new Date();
+            // Obtém o dia, mês e ano
+            let dia = hoje.getDate();
+            let mes = hoje.getMonth() + 1; // Janeiro é 0, então adiciono 1
+            let ano = hoje.getFullYear();
 
-        // Obtém o dia, mês e ano
-        let dia = hoje.getDate();
-        let mes = hoje.getMonth() + 1; // Janeiro é 0, então adiciono 1
-        let ano = hoje.getFullYear();
+            // Formata a data como string "DD/MM/YYYY"
+            let data_formatada = `${dia}/${mes}/${ano}`;
 
-        // Formata a data como string "DD/MM/YYYY"
-        let data_formatada = `${dia}/${mes}/${ano}`;
+            for (let produto of this.produtos){
+                if (produto.id_produto == id){
+                    let confirmacao = input.question(`O produto que você deseja comprar é ${produto.nome}? (s/n)`)
 
-        for (let produto of this.produtos){
-            if (produto.id_produto == id){
-                let confirmacao = input.question(`O produto que você deseja comprar é ${produto.nome}? (s ou n)`)
+                    if (confirmacao == "s"){
+                        this.pedidos.push(new Pedido(id_pedidos, cliente.id_cliente, produto.id_produto, "Pendente", data_formatada, quantidade))
+                        this.id_pedidos++;
 
-                if (confirmacao == "s"){
-                    this.pedidos.push(new Pedido(id_pedidos, cliente.id_cliente, produto.id_produto, "Pendente", data_formatada))
-                    this.id_pedidos++;
-
-                    return console.log("\nPedido realizado com sucesso\n")
+                        console.log("\nPedido realizado com sucesso")
+                        let comprar_mais = input.question("\nDeseja comprar outro produto? (s/n)")
+                        if (comprar_mais != "s"){
+                            return console.log("\nVoltando ao menu inicial.")
+                        }
+                        else{
+                            continue //continua no loop
+                        }
+                    }
+                    else{
+                        continue //continua no loop
+                    }
                 }
-
                 else{
-                    return console.log("\nPedido não realizado\n")
+                    console.log("\nID não encontrado.\n")
+                    comprar_mais = input.question("Deseja tentar novamente? (s/n)");
+                    if (comprar_mais != "s"){
+                        return console.log("Voltando ao menu inicial.")
+                    }
+                    else{
+                        continue //continua no loop
+                    }
                 }
-            }
-            else{
-                return console.log("n\ID não encontrado\n")
             }
         }
 
     }
 
-    ver_pedidos_cliente(cliente){
+    exibir_pedidos_cliente(cliente){
         console.log(`-------------------------------------${cliente.nome}: Lista de pedidos-------------------------------------`);
         for (let pedido of this.pedidos){
             if (pedido.id_cliente == cliente.id_cliente){
-                console.log(`\n--------\nID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nID do produto: ${pedido.id_produto}\nStatus: ${pedido.status}\nData: ${pedido.data}\n--------\n`)
+                console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nID do produto: ${pedido.id_produto}\nStatus: ${pedido.status}\nData: ${pedido.data}\nQuantidade: ${pedido.quantidade}--------`)
             }
         }
 
@@ -670,7 +702,7 @@ class Sistema{
 
     avaliar_pedido(cliente){
         console.log("-------------------------------------Avaliar um pedido-------------------------------------");
-        this.ver_pedidos_cliente(cliente);
+        this.exibir_pedidos_cliente(cliente);
 
         let id = input.question("Digite o ID do pedido que você deseja avaliar:  ");
         let avaliacao = input.question("Digite a avaliacao que voce deseja dar ao seu pedido:\n1. Otimo \n2. Bom \n 3. Ruim \n")
@@ -689,17 +721,16 @@ class Sistema{
                 break
 
             default:
-                return console.log("\nOpcao nao encontrada\n")
+                return console.log("\nOpcao nao encontrada. Voltando ao menu inicial.\n")
         }
 
         for (let i = 0; i < this.pedidos.length; i++){
-            if (this.pedidos[i].id_pedido == id){
+            if (this.pedidos[i].id_pedido == id && this.pedidos[i].id_cliente == cliente.id_cliente){
                 this.pedidos[i].avaliacao = avaliacao;
                 return console.log("Avaliacao enviada com sucesso\n")
             }
         }
-
-        return console.log("ID nao encontrado\n")
+        return console.log("ID nao encontrado. Voltando ao menu inicialW\n")
 
     }
 
@@ -707,7 +738,7 @@ class Sistema{
         console.log("-------------------------------------Avaliações de pedidos-------------------------------------");
         for (let pedido of this.pedidos){
             if (pedido.id_cliente == cliente.id_cliente){
-                console.log(`ID do pedido: ${pedido.id_pedido} \nAvaliacao: ${pedido.avaliacao}\n`)
+                console.log(`ID do pedido: ${pedido.id_pedido} \nAvaliacao: ${pedido.avaliacao}\n--------`)
             }
         }
 
