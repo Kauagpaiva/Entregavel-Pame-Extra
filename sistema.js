@@ -16,6 +16,7 @@ class Pedido{
         this.id_cliente = id_cliente;
         this.status = status;
         this.data = data;
+        this.avaliacao = null;
     }
 }
 
@@ -230,9 +231,11 @@ class Sistema{
                         break
 
                     case "6":
+                        this.ver_pedidos_cliente(usuario);
                         break
 
                     case "7":
+                        this.avaliar_pedido(usuario);
                         break
 
                     case "8":
@@ -627,7 +630,51 @@ class Sistema{
         this.pedidos.push(new Pedido(id_pedidos, cliente.id_cliente, "Pendente", data_formatada))
         this.id_pedidos++;
 
-        console.log("\nPedido realizado com sucesso\n")
+        return console.log("\nPedido realizado com sucesso\n")
+
+    }
+
+    ver_pedidos_cliente(cliente){
+        console.log(`-------------------------------------${cliente.nome}: Lista de pedidos-------------------------------------`);
+        for (let pedido of this.pedidos){
+            if (pedido.id_cliente == cliente.id_cliente){
+                console.log(`\n--------\nID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n--------\n`)
+            }
+        }
+
+    }
+
+    avaliar_pedido(cliente){
+        this.ver_pedidos_cliente(cliente);
+
+        let id = input.question("Digite o ID do pedido que você deseja avaliar:  ");
+        let avaliacao = input.question("Digite a avaliacao que voce deseja dar ao seu pedido:\n1. Otimo \n2. Bom \n 3. Ruim \n")
+
+        switch(avaliacao){
+            case "1":
+                avaliacao = "Otimo"
+                break
+
+            case "2":
+                avaliacao = "Bom"
+                break
+
+            case "3":
+                avaliacao = "Ruim"
+                break
+
+            default:
+                return console.log("\nOpcao nao encontrada\n")
+        }
+
+        for (let i = 0; i < this.pedidos.length; i++){
+            if (this.pedidos[i].id_pedido == id){
+                this.pedidos[i].avaliacao = avaliacao;
+                return console.log("Avaliacao enviada com sucesso\n")
+            }
+        }
+
+        return console.log("ID nao encontrado\n")
 
     }
 }
