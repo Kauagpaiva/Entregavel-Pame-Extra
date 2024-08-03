@@ -66,7 +66,7 @@ class Sistema{
         this.id_funcionarios = 0;
         this.id_clientes = 0;
         this.id_pedidos = 0;
-        this.id_clientes = 0;
+        this.id_produtos = 0;
     }
 
     iniciar(){
@@ -220,10 +220,13 @@ class Sistema{
                     case "3":
                         this.ver_produtos();
                         break
+
                     case "4":
+                        this.fazer_pedido();
                         break
 
                     case "5":
+                        this.cancelar_pedido();
                         break
 
                     case "6":
@@ -429,8 +432,8 @@ class Sistema{
         let estoque = input.question("Digite a quantidade em estoque: ");
         let descricao = input.question("Digite a descricao do produto: ");
 
-        this.produtos.push(Produto(validade, preco, estoque, nome, descricao, id_produtos));
-        id_produtos++;
+        this.produtos.push(new Produto(validade, preco, estoque, nome, descricao, id_produtos));
+        this.id_produtos++;
 
         this.produtos.sort((a, b) => a.nome.localeCompare(b.nome)); //deixando a lista sempre em ordem alfabética
 
@@ -486,10 +489,12 @@ class Sistema{
             for (let i = 0; i<this.produtos.length; i++){
                 if (this.produtos[i].id_produto == id){
                     this.produtos.splice(i,1) //remove o produto da lista produtos
+                    return console.log("\nProduto excluido com sucesso!\n")
                 }
             }
+             return console.log("\nID não encontrado\n")
 
-            console.log("\nProduto excluido com sucesso!\n")
+            
         }
     }
 
@@ -571,12 +576,59 @@ class Sistema{
                 for (let i = 0; i<this.pedidos.length; i++){
                     if (this.pedidos[i].id_pedido == id){
                         this.pedidos[i].status = novo_status;
+                        return console.log("\nStatus alterado com sucesso!\n")
                     }
                 }
-                console.log("\nStatus alterado com sucesso!\n")
             }
-            console.log("\nErro ao alterar o status do pedido\n")
+            else{
+                return console.log("\nErro ao alterar o status do pedido\n")
+            }
         }
+    }
+
+    cancelar_pedido(){
+        console.log("-------------------------------------Cancelar um pedido-------------------------------------");
+        if (this.pedidos.length == 0){
+            console.log("Nenhum pedido encontrado.\n")
+        }
+
+        else{
+            for (let pedido of this.pedidos){
+                console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
+            }
+
+            let id = input.question("Digite o ID do pedido que você deseja cancelar: ");
+            let confirmacao = input.question("Tem certeza que deseja cancelar este pedido? (Digite s ou n) ");
+
+            if (confirmacao == "s"){
+                for (let i = 0; i<this.pedidos.length; i++){
+                    if (this.pedidos[i].id_pedido == id){
+                        this.pedidos[i].status = novo_status;
+                        return console.log("\nStatus alterado com sucesso!\n")
+                    }
+                }
+                return console.log("\nID não encontrado\n")
+            }
+
+            return console.log("\n Pedido não cancelado \n")
+        }
+    }
+    fazer_pedido(cliente){
+        // Cria um novo objeto Date com a data e hora atuais
+        let hoje = new Date();
+
+        // Obtém o dia, mês e ano
+        let dia = hoje.getDate();
+        let mes = hoje.getMonth() + 1; // Janeiro é 0, então adiciono 1
+        let ano = hoje.getFullYear();
+
+        // Formata a data como string "DD/MM/YYYY"
+        let data_formatada = `${dia}/${mes}/${ano}`;
+        this.pedidos.push(new Pedido(id_pedidos, cliente.id_cliente, "Pendente", data_formatada))
+        this.id_pedidos++;
+
+        console.log("\nPedido realizado com sucesso\n")
+
     }
 }
 
