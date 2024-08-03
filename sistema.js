@@ -1,5 +1,4 @@
 const input = require('readline-sync');
-const fs = require('fs');
 
 class Pedido{
     constructor(id_pedido, id_cliente, id_produto, status, data, quantidade){
@@ -85,8 +84,7 @@ class Sistema{
                     break
         
                 case "3":
-                    return console.log("Desligando o sistema..")
-                    break
+                    return console.log("Desligando o sistema.")
                 
                 default:
                     console.log("Opção não encontrada, tente novamente.\n");
@@ -95,9 +93,6 @@ class Sistema{
         }
     }
 
-    ler_dados_clientes(){
-
-    }
     cadastro(){
         //Verifico que tipo de conta a pessoa quer criar
         console.log("-------------------------------------Àrea de Cadastro-------------------------------------")
@@ -120,8 +115,24 @@ class Sistema{
                     nascimento = input.question("Digite a sua data de nascimento (dd/mm/aaa): ");
                     cpf = input.question("Digite o seu CPF (xxx.xxx.xxx-xx): ");
                     email = input.question("Digite o seu melhor email: ");
-                    senha = input.question("Crie uma senha: ");
+                    senha = input.question("Crie uma senha com pelo menos 8 digitos: ");
 
+                    if (this.validar_data(nascimento) == false){
+                        return console.log("Erro ao realizar cadastro, digite uma data valida no formato exigido.\n")
+                    }
+
+                    if (this.validar_CPF(cpf) == false){
+                        return console.log("Erro ao realizar cadastro. Digite um CPF valido. \n")
+                    }
+
+                    if (this.validar_email(email) == false){
+                        return console.log("Erro ao realizar cadastro. Digite um email valido. \n")
+                    }
+
+                    if (this.validar_senha(senha) == false){
+                        return console.log("Erro ao realizar cadastro. Digite uma senha valida. \n")
+                    }
+                    
                     this.clientes.push(new Cliente(this.id_clientes, nome, nascimento, cpf, email, senha));
                     this.clientes.sort((a, b) => a.nome.localeCompare(b.nome));
                     this.id_clientes++;
@@ -134,6 +145,18 @@ class Sistema{
                     cpf = input.question("Digite o seu CPF no formato xxx.xxx.xxx-xx: ");
                     email = input.question("Digite o seu melhor email: ");
                     senha = input.question("Crie uma senha: ");
+
+                    if (this.validar_CPF(cpf) == false){
+                        return console.log("Erro ao realizar cadastro. Digite um CPF valido. \n")
+                    }
+
+                    if (this.validar_email(email) == false){
+                        return console.log("Erro ao realizar cadastro. Digite um email valido. \n")
+                    }
+
+                    if (this.validar_senha(senha) == false){
+                        return console.log("Erro ao realizar cadastro. Digite uma senha valida. \n")
+                    }
 
                     this.funcionarios.push(new Funcionario(this.id_funcionarios, nome, cpf, email, senha));
                     this.funcionarios.sort((a, b) => a.nome.localeCompare(b.nome)); 
@@ -196,11 +219,6 @@ class Sistema{
         }
     }
 
-    sair(){
-        this.ligado = false;
-        return console.log("Desconectando do sistema...")
-    }
-
     abrir_pagina_usuario(usuario){
         let opcao;
         switch(usuario.tipo){
@@ -215,7 +233,6 @@ class Sistema{
                         case "1": // Lendo os dados
                             this.exibir_dados_usuario(usuario);
                             break
-                            
 
                         case "2": //Modificando os dados
                             this.modificar_dados(usuario);
@@ -335,12 +352,21 @@ class Sistema{
 
                     case "2": //atualizando a data de nascimento do cliente
                         novo_dado = input.question("Digite a nova data de nascimento: ")
-                        usuario.nascimento = novo_dado;
-                        this.atualizar_no_sistema(usuario)
-                        break
+                        if (this.validar_data(noov_dado) == false){
+                            return console.log("Erro ao ataulizar dados, digite uma data valida no formato exigido.\n")
+                        }
+                        else{
+                            usuario.nascimento = novo_dado;
+                            this.atualizar_no_sistema(usuario)
+                            break
+                        }
 
                     case "3": //atualizando o cpf do cliente
                         novo_dado = input.question("Digite o novo CPF: ")
+
+                        if (this.validar_CPF(novo_dado) == false){
+                            return console.log("Erro ao realizar cadastro. Digite um CPF valido. \n")
+                        }
                         usuario.cpf = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
@@ -376,6 +402,11 @@ class Sistema{
 
                     case "2": //atualizando o cpf
                         novo_dado = input.question("Digite o novo CPF: ")
+
+                        if (this.validar_CPF(novo_dado) == false){
+                            return console.log("Erro ao realizar cadastro. Digite um CPF valido. \n")
+                        }
+
                         usuario.cpf = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
@@ -744,16 +775,60 @@ class Sistema{
         }
 
     }
+
+    validar_data(data){
+        // Expressão regular para verificar o formato "dd/mm/aaaa"
+        const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+
+        // Verifica se a data corresponde ao padrão
+        if (!regex.test(data)) {
+            return false;
+        }
+
+        // Separa os componentes da data
+        const [dia, mes, ano] = data.split('/').map(Number);
+
+        // Verifica se o dia é válido para o mês
+        const diasNoMes = [31, (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        
+        if (dia > diasNoMes[mes - 1]) {
+            return false;
+        }
+
+        // A data é válida
+        return true;
+    }
+
+    validar_CPF(cpf){
+        // Expressão regular para verificar o formato "xxx.xxx.xxx-xx"
+        const regex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+
+        // Verifica se o CPF corresponde ao padrão
+        if (!regex.test(cpf)) {
+            return false;
+        }
+        return true;
+    }
+
+    validar_email(email){
+        // Expressão regular para verificar se há um "@" no e-mail
+        const regex = /^[^@]+@[^@]+$/;
+
+        // Verifica se o e-mail corresponde ao padrão
+        return regex.test(email);
+    }
+
+    validar_senha(senha){
+        if (senha.length < 8){
+            return false;
+        }
+        else{
+            return true
+        }
+    }
 }
 
-
-
 var sistema = new Sistema();
-
-// console.log("Carregando o banco de dados...\n")
-// sistema.ler_dados_clientes();
-// sistema.ler_dados_funcionarios();
-// sistema.ler_dados_pedidos();
 
 console.log("Iniciando o sistema...\n")
 sistema.iniciar();
