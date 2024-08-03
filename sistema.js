@@ -11,9 +11,10 @@ const fs = require('fs');
 
 
 class Pedido{
-    constructor(id_pedido, id_cliente, status, data){
+    constructor(id_pedido, id_cliente, id_produto, status, data){
         this.id_pedido = id_pedido;
         this.id_cliente = id_cliente;
+        this.id_produto = id_produto;
         this.status = status;
         this.data = data;
         this.avaliacao = null;
@@ -223,11 +224,11 @@ class Sistema{
                         break
 
                     case "4":
-                        this.fazer_pedido();
+                        this.fazer_pedido(cliente);
                         break
 
                     case "5":
-                        this.cancelar_pedido();
+                        this.cancelar_pedido(usuario);
                         break
 
                     case "6":
@@ -239,6 +240,7 @@ class Sistema{
                         break
 
                     case "8":
+                        this.exibir_avaliacoes(usuario);
                         break
 
                     case "9":
@@ -422,7 +424,7 @@ class Sistema{
         }
         else{
             for (let produto of this.produtos){
-                console.log(`Nome: ${produto.nome}\nPreço: ${produto.preco}\nValidade: ${produto.validade}\nEstoque: ${produto.estoque}\nDescricao: ${produto.descricao}\n\n`)
+                console.log(`Nome: ${produto.nome}\nPreço: ${produto.preco}\nValidade: ${produto.validade}\nEstoque: ${produto.estoque}\nDescricao: ${produto.descricao}\nID do produto: ${produto.id_produto}\n\n`)
             }
         }
     }
@@ -589,7 +591,7 @@ class Sistema{
         }
     }
 
-    cancelar_pedido(){
+    cancelar_pedido(cliente){
         console.log("-------------------------------------Cancelar um pedido-------------------------------------");
         if (this.pedidos.length == 0){
             console.log("Nenhum pedido encontrado.\n")
@@ -597,7 +599,9 @@ class Sistema{
 
         else{
             for (let pedido of this.pedidos){
-                console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
+                if (pedido.id_cliente == cliente.id_cliente){
+                    console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
+                }
             }
 
             let id = input.question("Digite o ID do pedido que você deseja cancelar: ");
@@ -606,8 +610,8 @@ class Sistema{
             if (confirmacao == "s"){
                 for (let i = 0; i<this.pedidos.length; i++){
                     if (this.pedidos[i].id_pedido == id){
-                        this.pedidos[i].status = novo_status;
-                        return console.log("\nStatus alterado com sucesso!\n")
+                        this.pedidos[i].status = "Cancelado";
+                        return console.log("\nPedido cancelado com sucesso\n")
                     }
                 }
                 return console.log("\nID não encontrado\n")
@@ -617,6 +621,10 @@ class Sistema{
         }
     }
     fazer_pedido(cliente){
+        console.log("-------------------------------------Fazer pedido-------------------------------------");
+
+        let id = input.question("Digite o ID do produto que você deseja comprar: ")
+
         // Cria um novo objeto Date com a data e hora atuais
         let hoje = new Date();
 
@@ -627,10 +635,26 @@ class Sistema{
 
         // Formata a data como string "DD/MM/YYYY"
         let data_formatada = `${dia}/${mes}/${ano}`;
-        this.pedidos.push(new Pedido(id_pedidos, cliente.id_cliente, "Pendente", data_formatada))
-        this.id_pedidos++;
 
-        return console.log("\nPedido realizado com sucesso\n")
+        for (let produto of this.produtos){
+            if (produto.id_produto == id){
+                let confirmacao = input.question(`O produto que você deseja comprar é ${produto.nome}? (s ou n)`)
+
+                if (confirmacao == "s"){
+                    this.pedidos.push(new Pedido(id_pedidos, cliente.id_cliente, produto.id_produto, "Pendente", data_formatada))
+                    this.id_pedidos++;
+
+                    return console.log("\nPedido realizado com sucesso\n")
+                }
+
+                else{
+                    return console.log("\nPedido não realizado\n")
+                }
+            }
+            else{
+                return console.log("n\ID não encontrado\n")
+            }
+        }
 
     }
 
@@ -638,13 +662,14 @@ class Sistema{
         console.log(`-------------------------------------${cliente.nome}: Lista de pedidos-------------------------------------`);
         for (let pedido of this.pedidos){
             if (pedido.id_cliente == cliente.id_cliente){
-                console.log(`\n--------\nID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n--------\n`)
+                console.log(`\n--------\nID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nID do produto: ${pedido.id_produto}\nStatus: ${pedido.status}\nData: ${pedido.data}\n--------\n`)
             }
         }
 
     }
 
     avaliar_pedido(cliente){
+        console.log("-------------------------------------Avaliar um pedido-------------------------------------");
         this.ver_pedidos_cliente(cliente);
 
         let id = input.question("Digite o ID do pedido que você deseja avaliar:  ");
@@ -675,6 +700,16 @@ class Sistema{
         }
 
         return console.log("ID nao encontrado\n")
+
+    }
+
+    exibir_avaliacoes(cliente){
+        console.log("-------------------------------------Avaliações de pedidos-------------------------------------");
+        for (let pedido of this.pedidos){
+            if (pedido.id_cliente == cliente.id_cliente){
+                console.log(`ID do pedido: ${pedido.id_pedido} \nAvaliacao: ${pedido.avaliacao}\n`)
+            }
+        }
 
     }
 }
