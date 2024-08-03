@@ -50,7 +50,6 @@ class Produto{
 class Sistema{
     constructor(){
         // Para armazenar os dados ao decorrer do uso do sistema
-        this.ligado = false;
         this.logado = false;
         this.clientes = [];
         this.produtos = [];
@@ -65,8 +64,7 @@ class Sistema{
     }
 
     iniciar(){
-        this.ligado = true
-        while (this.ligado == true){
+        while (true){
             console.log("-------------------------------------Menu Inicial: Selecione uma opção abaixo-------------------------------------")
             console.log("1. Fazer Login\n2. Cadastrar um novo usuário\n3. Encerrar o sistema\n")
             var opcao = input.question("Selecione uma opcao: ");
@@ -87,7 +85,7 @@ class Sistema{
                     break
         
                 case "3":
-                    this.ligado = false
+                    return console.log("Desligando o sistema..")
                     break
                 
                 default:
@@ -656,22 +654,25 @@ class Sistema{
 
             for (let produto of this.produtos){
                 if (produto.id_produto == id){
-                    let confirmacao = input.question(`O produto que você deseja comprar é ${produto.nome}? (s/n)`)
+                    if (produto.estoque >= quantidade){
+                        let confirmacao = input.question(`O produto que você deseja comprar é ${produto.nome}? (s/n)`)
+                        if (confirmacao == "s"){
+                            this.pedidos.push(new Pedido(id_pedidos, cliente.id_cliente, produto.id_produto, "Pendente", data_formatada, quantidade))
+                            this.id_pedidos++;
 
-                    if (confirmacao == "s"){
-                        this.pedidos.push(new Pedido(id_pedidos, cliente.id_cliente, produto.id_produto, "Pendente", data_formatada, quantidade))
-                        this.id_pedidos++;
+                            console.log("\nPedido realizado com sucesso")
+                            let comprar_mais = input.question("\nDeseja comprar outro produto? (s/n)")
 
-                        console.log("\nPedido realizado com sucesso")
-                        let comprar_mais = input.question("\nDeseja comprar outro produto? (s/n)")
-                        if (comprar_mais != "s"){
-                            return console.log("\nVoltando ao menu inicial.")
-                        }
-                        else{
-                            continue //continua no loop
+                            if (comprar_mais != "s"){
+                                return console.log("\nVoltando ao menu inicial.")
+                            }
+                            else{
+                                continue //continua no loop
+                            }
                         }
                     }
                     else{
+                        console.log("Há menos produtos no estoque do que a quantidade que você deseja comprar. Compra não realizada.")
                         continue //continua no loop
                     }
                 }
