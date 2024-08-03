@@ -250,39 +250,43 @@ class Sistema{
                 opcao = input.question("Selecione uma opcao: ");
 
                 switch(opcao){
-                    case 1: // ver os dados
+                    case "1": // ver os dados
                         this.exibir_dados_usuario(usuario);
                         break
 
-                    case 2:
+                    case "2":
                         this.modificar_dados(usuario);
                         break
 
-                    case 3:
+                    case "3":
+                        this.exibir_pedidos();
+                        break
 
-                    case 4:
+                    case "4":
                         this.ver_produtos();
                         break
 
-                    case 5:
+                    case "5":
                         this.exibir_clientes();
                         break
 
-                    case 6:
+                    case "6":
+                        this.modificar_status_pedido();
+                        break
 
-                    case 7:
+                    case "7":
                         this.adicionar_produto();
                         break
 
-                    case 8:
+                    case "8":
                         this.editar_produto();
                         break
 
-                    case 9:
+                    case "9":
                         this.excluir_produto();
                         break
 
-                    case 10:
+                    case "10":
 
                     default:
 
@@ -508,18 +512,70 @@ class Sistema{
 
         else{
             for (let cliente of this.clientes){
-                console.log(`ID: ${produto.id_produto}\nNome: ${produto.nome}\nPreço: ${produto.preco}\nValidade: ${produto.validade}\nEstoque: ${produto.estoque}\nDescricao: ${produto.descricao}\n\n`)
+                console.log(`\n--------\nNome: ${cliente.nome} \nData de Nascimento: ${cliente.nascimento} \nCPF: ${cliente.cpf} \nEmail: ${cliente.email} \nID: ${cliente.id_cliente}\n--------\n`)
+            }
+        }
+    }
+
+    exibir_pedidos(){
+        console.log("-------------------------------------Lista pedidos-------------------------------------");
+        if (this.pedidos.length == 0){
+            console.log("Nenhum pedido encontrado.\n")
+        }
+
+        else{
+            for (let pedido of this.pedidos){
+                console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
+            }
+        }
+    }
+
+    modificar_status_pedido(){
+        console.log("-------------------------------------Modificar o status de um pedido-------------------------------------");
+        if (this.pedidos.length == 0){
+            console.log("Nenhum pedido encontrado.\n")
+        }
+
+        else{
+            for (let pedido of this.pedidos){
+                console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
             }
 
-            let id = input.question("Digite o ID do produto que você deseja excluir: ")
+            let id = input.question("Digite o ID do pedido que você deseja alterar o status: ");
+            console.log("\nVocê deseja alterar o status do pedido para:\n1. Adiado \n2. Cancelado \n3. Pendente \n 4. Realizado \n");
+            let opcao = input.question("Selecione uma opcao: ");
+            let novo_status = null;
 
-            for (let i = 0; i<this.produtos.length; i++){
-                if (this.produtos[i].id_produto == id){
-                    this.produtos.splice(i,1) //remove o produto da lista produtos
+            switch(opcao){
+                case "1":
+                    novo_status = "Adiado";
+                    break
+
+                case "2":
+                    novo_status = "Cancelado";
+                    break
+                    
+                case "3":
+                    novo_status = "Pendente";
+                    break
+
+                case "4":
+                    novo_status = "Realizado";
+                    break
+
+                default:
+                    console.log("Opcao não encontrada")
+                    break
+            }
+            if(novo_status != null){
+                for (let i = 0; i<this.pedidos.length; i++){
+                    if (this.pedidos[i].id_pedido == id){
+                        this.pedidos[i].status = novo_status;
+                    }
                 }
+                console.log("\nStatus alterado com sucesso!\n")
             }
-
-            console.log("\nProduto excluido com sucesso!\n")
+            console.log("\nErro ao alterar o status do pedido\n")
         }
     }
 }
