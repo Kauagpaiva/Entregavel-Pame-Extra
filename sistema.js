@@ -218,7 +218,7 @@ class Sistema{
             return null;
         }
     }
-voce
+    
     abrir_pagina_usuario(usuario){
         let opcao;
         switch(usuario.tipo){
