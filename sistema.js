@@ -1,5 +1,6 @@
 const input = require('readline-sync');
 
+//Definindo as classes
 class Pedido{
     constructor(id_pedido, id_cliente, id_produto, status, data, quantidade){
         this.id_pedido = id_pedido;
@@ -55,7 +56,7 @@ class Sistema{
         this.funcionarios = [];
         this.pedidos = [];
 
-        //setando variáveis para definir os IDs de forma que cada instancia possua um ID único
+        //Setando variáveis para definir os IDs de forma que cada instancia possua um ID único
         this.id_funcionarios = 0;
         this.id_clientes = 0;
         this.id_pedidos = 0;
@@ -63,6 +64,7 @@ class Sistema{
     }
 
     iniciar(){
+        //Loop para manter o usuário retornando ao menu inicial
         while (true){
             console.log("-------------------------------------Menu Inicial: Selecione uma opcao abaixo-------------------------------------")
             console.log("1. Fazer Login\n2. Cadastrar um novo usuario\n3. Encerrar o sistema\n")
@@ -70,6 +72,7 @@ class Sistema{
         
             switch(opcao){
                 case "1":
+                    //realiza o login no sistema e acessa a página de cliente ou funcionario dependendo da conta que acessou
                     var usuario = sistema.login();
                     if (usuario != null){
                         sistema.abrir_pagina_usuario(usuario);
@@ -80,13 +83,16 @@ class Sistema{
                     }
         
                 case "2":
+                    //abre a aba para cadastrar um novo usuário no sistema
                     sistema.cadastro();
                     break
         
                 case "3":
+                    //Encerra o loop, terminando o sistema
                     return console.log("Desligando o sistema.")
                 
                 default:
+                    //Repete o loop até inserir uma opção válida
                     console.log("Opcao nao encontrada, tente novamente.\n");
                     break
             }
@@ -117,54 +123,62 @@ class Sistema{
                     email = input.question("Digite o seu melhor email: ");
                     senha = input.question("Crie uma senha com pelo menos 8 digitos: ");
 
-                    if (this.validar_data(nascimento) == false){
+                    if (this.validar_data(nascimento) == false){ //impede datas de nascimento no formato incorreto
                         return console.log("\nErro ao realizar cadastro, digite uma data valida no formato exigido.")
                     }
 
-                    if (this.validar_CPF(cpf) == false){
+                    if (this.validar_CPF(cpf) == false){ // impede CPFs no formato incorreto
                         return console.log("\nErro ao realizar cadastro. Digite um CPF valido.")
                     }
 
-                    if (this.validar_email(email) == false){
+                    if (this.validar_email(email) == false){ //Impede emails no formato incorreto
                         return console.log("\nErro ao realizar cadastro. Digite um email valido.")
                     }
 
-                    if (this.validar_senha(senha) == false){
+                    if (this.validar_senha(senha) == false){ //impede senhas com menos de 8 dígitos
                         return console.log("\nErro ao realizar cadastro. Digite uma senha valida. ")
                     }
                     
+                    // Cria a conta e adiciona ao banco de dados local e volátil
                     this.clientes.push(new Cliente(this.id_clientes, nome, nascimento, cpf, email, senha));
+                    // mantem o banco de dados com a conta dos clientes em ordem alfabética
                     this.clientes.sort((a, b) => a.nome.localeCompare(b.nome));
+                    // aumenta o número de ids utilizados para eles não se repetirem
                     this.id_clientes++;
 
                     return console.log("\nUsuario cadastrado com sucesso!")
 
                 case "2":
+                    //criando a conta para um funcionário
                     console.log("-------------------------------------Cadastrando um funcionario-------------------------------------")
                     nome = input.question("Digite o seu nome: ");
                     cpf = input.question("Digite o seu CPF no formato xxx.xxx.xxx-xx: ");
                     email = input.question("Digite o seu melhor email: ");
-                    senha = input.question("Crie uma senha: ");
+                    senha = input.question("Crie uma senha com no minimo 8 digitos: ");
 
-                    if (this.validar_CPF(cpf) == false){
+                    if (this.validar_CPF(cpf) == false){ // impede um cpf em formato invalido
                         return console.log("Erro ao realizar cadastro. Digite um CPF valido. \n")
                     }
 
-                    if (this.validar_email(email) == false){
+                    if (this.validar_email(email) == false){ // impede emails em formato invalido
                         return console.log("Erro ao realizar cadastro. Digite um email valido. \n")
                     }
 
-                    if (this.validar_senha(senha) == false){
+                    if (this.validar_senha(senha) == false){ // impede senhas com menos de 8 digitos
                         return console.log("Erro ao realizar cadastro. Digite uma senha valida. \n")
                     }
 
+                    // adiciona ao banco de dados locais que registra as contas de funcionarios
                     this.funcionarios.push(new Funcionario(this.id_funcionarios, nome, cpf, email, senha));
+                    // mantem o banco de dados em ordem alfabetica
                     this.funcionarios.sort((a, b) => a.nome.localeCompare(b.nome)); 
+                    // registra que um id ja foi utilizado
                     this.id_funcionarios++;
 
                     return console.log("\nUsuario cadastrado com sucesso!")
 
                 case "3":
+                    // volta ao menu inicial
                     return console.log("\nRetornando para o menu principal.")
 
                 default:
@@ -180,7 +194,6 @@ class Sistema{
         let email = input.question("Digite o seu email: ");
         let senha = input.question("Digite a sua senha: ");
         let verificacao_email = false;
-        //let verificacao_tipo_de_conta = null;
 
         //percorre todas as instancias de clientes cadastrados e verifica se o email e senha digitados são compativeis com o de alguma conta
         for (let i = 0; i < (this.clientes.length); i++){
@@ -189,6 +202,7 @@ class Sistema{
                 if (senha == this.clientes[i].senha){
                     console.log("\nConta acessada com sucesso!")
                     this.logado = true;
+                    //retorna a conta para ser utilizada no sistema
                     return this.clientes[i];
                 }
             }
@@ -201,6 +215,7 @@ class Sistema{
                 if (senha == this.funcionarios[i].senha){
                     console.log("\nConta acessada com sucesso!")
                     this.logado = true;
+                    //retorna a conta para ser utilizada no sistema
                     return this.funcionarios[i];
                 }
             }
@@ -238,36 +253,36 @@ class Sistema{
                             this.modificar_dados(usuario);
                             break
 
-                        case "3":
+                        case "3": //exibindo os produtos disponiveis na loja
                             this.exibir_produtos();
                             break
 
-                        case "4":
-                            this.fazer_pedido(cliente);
+                        case "4": //permite que o cliente compre algum produto
+                            this.fazer_pedido(usuario);
                             break
 
-                        case "5":
+                        case "5": //permite que o cliente cancele a compra de algum produto que ele fez
                             this.cancelar_pedido(usuario);
                             break
 
-                        case "6":
+                        case "6": // exibe todos os pedidos que o cliente fez
                             this.exibir_pedidos_cliente(usuario);
                             break
 
-                        case "7":
+                        case "7": //permite que o cliente avalie algum pedido que ele fez
                             this.avaliar_pedido(usuario);
                             break
 
-                        case "8":
+                        case "8": // permite que o cliente veja as avaliações que ele já fez
                             this.exibir_avaliacoes(usuario);
                             break
 
-                        case "9":
+                        case "9": // sai da conta
                             this.logado = false;
                             console.log("Desconectando da conta..")
                             break
 
-                        default:
+                        default: // retorna ao loop até inserir uma opção válida
                             console.log("Opcao nao encontrada tente novamente.")
                             break
                     }
@@ -285,44 +300,44 @@ class Sistema{
                             this.exibir_dados_usuario(usuario);
                             break
 
-                        case "2":
+                        case "2": // modificar os dados
                             this.modificar_dados(usuario);
                             break
 
-                        case "3":
+                        case "3": // exibe todos os pedidos realizados na loja
                             this.exibir_pedidos();
                             break
 
-                        case "4":
+                        case "4": // exibe todos os produtos da loja
                             this.exibir_produtos();
                             break
 
-                        case "5":
+                        case "5": // exibe todos os clientes da loja
                             this.exibir_clientes();
                             break
 
-                        case "6":
+                        case "6": // modifica o status do pedido de algum cliente
                             this.modificar_status_pedido();
                             break
 
-                        case "7":
+                        case "7": // adiciona algum produto na loja
                             this.adicionar_produto();
                             break
 
-                        case "8":
+                        case "8": // edita algum produto da loja
                             this.editar_produto();
                             break
 
-                        case "9":
+                        case "9": // exclui algum produto da loja
                             this.excluir_produto();
                             break
 
-                        case "10":
+                        case "10": // sai da conta
                             this.logado = false;
                             console.log("Desconectando da conta...")
                             break
 
-                        default:
+                        default: // retorna ao loop até digitar alguma opção valida
                             console.log("Opcao nao encontrada tente novamente.")
                             break
 
@@ -345,15 +360,15 @@ class Sistema{
                 switch(opcao){
                     case "1": //atualizando o nome do cliente
                         novo_dado = input.question("Digite o novo nome: ")
-                        usuario.nome = novo_dado;
-                        this.atualizar_no_sistema(usuario)
-                        this.clientes.sort((a, b) => a.nome.localeCompare(b.nome)); //deixa a lista em ordem alfabetica
+                        usuario.nome = novo_dado; //atualiza na conta
+                        this.atualizar_no_sistema(usuario) //atualiza no banco de dados
+                        this.clientes.sort((a, b) => a.nome.localeCompare(b.nome)); //deixa o banco de dados em ordem alfabetica
                         break
 
                     case "2": //atualizando a data de nascimento do cliente
-                        novo_dado = input.question("Digite a nova data de nascimento: ")
-                        if (this.validar_data(noov_dado) == false){
-                            return console.log("Erro ao ataulizar dados, digite uma data valida no formato exigido.\n")
+                        novo_dado = input.question("Digite a nova data de nascimento (dd/mm/aaa): ")
+                        if (this.validar_data(novo_dado) == false){ //impede datas fora do formato permitido
+                            return console.log("Erro ao ataulizar cadastro. Digite uma data valida no formato exigido.\n")
                         }
                         else{
                             usuario.nascimento = novo_dado;
@@ -365,7 +380,7 @@ class Sistema{
                         novo_dado = input.question("Digite o novo CPF: ")
 
                         if (this.validar_CPF(novo_dado) == false){
-                            return console.log("Erro ao realizar cadastro. Digite um CPF valido. \n")
+                            return console.log("Erro ao atualizar cadastro. Digite um CPF valido. \n")
                         }
                         usuario.cpf = novo_dado;
                         this.atualizar_no_sistema(usuario)
@@ -373,12 +388,18 @@ class Sistema{
 
                     case "4": //atualizando o email do cliente
                         novo_dado = input.question("Digite o novo email: ")
+                        if (this.validar_email(novo_dado) == false){
+                            return console.log("Erro ao atualizar cadastro. Digite um email valido. \n")
+                        }
                         usuario.email = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
 
                     case "5": //atualizando a senha do cliente
-                        novo_dado = input.question("Digite o nova senha: ")
+                        novo_dado = input.question("Digite o nova senha com no minimo 8 digitos: \n")
+                        if (this.validar_senha(novo_dado) == false){
+                            return console.log("Erro ao atualizar cadastro. Digite uma senha valida")
+                        }
                         usuario.senha = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
@@ -413,12 +434,18 @@ class Sistema{
 
                     case "3": //atualizando o email
                         novo_dado = input.question("Digite o novo email: ")
+                        if (this.validar_email(novo_dado) == false){
+                            return console.log("Erro ao atualizar cadastro. Digite um email valido. \n")
+                        }
                         usuario.email = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
 
                     case "4": //atualizando a senha
-                    novo_dado = input.question("Digite o nova senha: ")
+                        novo_dado = input.question("Digite o nova senha com no minimo 8 digitos: ")
+                        if (this.validar_senha(novo_dado) == false){
+                            return console.log("Erro ao atualizar cadastro. Digite uma senha valida")
+                        }
                         usuario.senha = novo_dado;
                         this.atualizar_no_sistema(usuario)
                         break
@@ -477,15 +504,28 @@ class Sistema{
     adicionar_produto(){
         console.log("-------------------------------------Adicionar um novo produto a loja-------------------------------------");
         let nome = input.question("Digite o nome do produto: ");
-        let preco = input.question("Digite o preco do produto: ");
-        let validade = input.question("Digite a validade do produto: ");
+        let preco = input.question("Digite o preco do produto (somente numeros): ");
+        let validade = input.question("Digite a validade do produto (dd/mm/aaaa): ");
         let estoque = input.question("Digite a quantidade em estoque: ");
         let descricao = input.question("Digite a descricao do produto: ");
 
-        if (this.validar_data(validade) == false){
+        if (this.validar_data(validade) == false){ //impede que coloquem letras ou datas fora do padrão em validade
             return console.log("\nErro ao cadastrar produto. Insira uma validade valida.\n")
         }
 
+        if (isNaN(preco)){ //impede que coloquem letras no preço
+            return console.log("\nErro ao cadastrar produto. Insira um preco valido. \n")
+        }
+
+        if (isNaN(estoque)){ //impede que coloquem letras no estoque
+            return console.log("\nErro ao cadastrar produto. Insira um preco valido")
+        }
+
+        if (estoque <= 0){ // impede que cadastrem produtos com estoque negativo ou sem estoque
+            return console.log("\nErro ao cadastrar produto. Nao e possivel cadastrar produtos sem estoque")
+        }
+
+        // adiciona ao banco de dados
         this.produtos.push(new Produto(validade, preco, estoque, nome, descricao, this.id_produtos));
         this.id_produtos++;
 
@@ -507,13 +547,25 @@ class Sistema{
 
             let id = input.question("Digite o ID do produto que voce deseja editar: ")
             let nome = input.question("Digite o novo nome do produto: ");
-            let preco = input.question("Digite o novo preco do produto: ");
-            let validade = input.question("Digite a nova validade do produto: ");
+            let preco = input.question("Digite o novo preco do produto (somente numeros): ");
+            let validade = input.question("Digite a nova validade do produto (dd/mm/aaaa): ");
             let estoque = input.question("Digite a nova quantidade em estoque: ");
             let descricao = input.question("Digite a nova descricao do produto: ");
 
-            if(this.validar_data(validade) == false){
+            if(this.validar_data(validade) == false){ //impede que coloquem datas fora do padrão
                 return console.log("n\Erro ao editar produto. Insira uma data de validade valida.")
+            }
+    
+            if (isNaN(preco)){ //impede que coloquem letras no preço
+                return console.log("\nErro ao cadastrar produto. Insira um preco valido. \n")
+            }
+    
+            if (isNaN(estoque)){ //impede que coloquem letras no estoque
+                return console.log("\nErro ao cadastrar produto. Insira um preco valido")
+            }
+    
+            if (estoque <= 0){ // impede que cadastrem produtos com estoque negativo ou sem estoque
+                return console.log("\nErro ao cadastrar produto. Nao e possivel cadastrar produtos sem estoque")
             }
 
             for (let i = 0; i<this.produtos.length; i++){
@@ -575,7 +627,7 @@ class Sistema{
 
         else{
             for (let cliente of this.clientes){
-                console.log(`Nome: ${cliente.nome} \nData de Nascimento: ${cliente.nascimento} \nCPF: ${cliente.cpf} \nEmail: ${cliente.email} \nID: ${cliente.id_cliente}\n\n`)
+                console.log(`Nome: ${cliente.nome} \nData de Nascimento: ${cliente.nascimento}\nEmail: ${cliente.email} \nID: ${cliente.id_cliente}\n\n`)
             }
         }
     }
@@ -596,10 +648,10 @@ class Sistema{
     modificar_status_pedido(){
         console.log("-------------------------------------Modificar o status de um pedido-------------------------------------");
         if (this.pedidos.length == 0){
-            console.log("Nenhum pedido encontrado.")
+            console.log("Nenhum pedido encontrado. Voltando ao menu inicial")
         }
 
-        else{
+        else{ //exibe todos os pedidos
             for (let pedido of this.pedidos){
                 console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nID do produto: ${pedido.id_produto}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
             }
@@ -633,8 +685,12 @@ class Sistema{
             if(novo_status != null){
                 for (let i = 0; i<this.pedidos.length; i++){
                     if (this.pedidos[i].id_pedido == id){
+                        //altera o status do pedido com o id informado
                         this.pedidos[i].status = novo_status;
                         return console.log("\nStatus alterado com sucesso!\n")
+                    }
+                    else{
+                        return console.log("ID nao encontrado. Retornando ao menu inicial\n")
                     }
                 }
             }
@@ -650,9 +706,9 @@ class Sistema{
             console.log("Nenhum pedido encontrado. Voltando ao menu inicial.")
         }
 
-        else{
+        else{ //exibe todos os pedidos feitos pelo cliente
             for (let pedido of this.pedidos){
-                if (pedido.id_cliente == cliente.id_cliente && pedido.id_pedido != "Realizado"){
+                if (pedido.id_cliente == cliente.id_cliente && pedido.id_pedido != "Realizado"){ //impede que cancele pedidos que já foram concluidos
                     console.log(`ID do pedido: ${pedido.id_pedido}\nID do cliente: ${pedido.id_cliente}\nID do produto: ${pedido.id_produto}\nStatus: ${pedido.status}\nData: ${pedido.data}\n`)
                 }
             }
@@ -660,6 +716,7 @@ class Sistema{
             let id = input.question("Digite o ID do pedido que voce deseja cancelar: ");
             let confirmacao = input.question("Tem certeza que deseja cancelar este pedido? (s/n) ");
 
+            // confirma o cancelamento
             if (confirmacao == "s"){
                 for (let i = 0; i<this.pedidos.length; i++){
                     if (this.pedidos[i].id_pedido == id && this.pedidos[i].id_cliente == cliente.id_cliente){
@@ -673,9 +730,11 @@ class Sistema{
             return console.log("\nPedido nao cancelado. Voltando ao menu inicial.\n")
         }
     }
+
     fazer_pedido(cliente){
         console.log("-------------------------------------Fazer pedido-------------------------------------\n");
         while(true){
+            //exibe todos os produtos da loja
             this.exibir_produtos()
             let id = input.question("Digite o ID do produto que voce deseja comprar: ")
             let quantidade = input.question("Digite a quantidade de produto que  deseja comprar: ")
@@ -693,7 +752,7 @@ class Sistema{
 
             for (let produto of this.produtos){
                 if (produto.id_produto == id){
-                    if (produto.estoque >= quantidade){
+                    if (produto.estoque >= quantidade){ // verifica se tem quantidade suficiente para ser comprada
                         let confirmacao = input.question(`O produto que voce deseja comprar é ${produto.nome}? (s/n)`)
                         if (confirmacao == "s"){
                             this.pedidos.push(new Pedido(id_pedidos, cliente.id_cliente, produto.id_produto, "Pendente", data_formatada, quantidade))
@@ -730,7 +789,7 @@ class Sistema{
 
     }
 
-    exibir_pedidos_cliente(cliente){
+    exibir_pedidos_cliente(cliente){ //exibe os pedidos feitos pelo cliente
         console.log(`-------------------------------------${cliente.nome}: Lista de pedidos-------------------------------------`);
         for (let pedido of this.pedidos){
             if (pedido.id_cliente == cliente.id_cliente){
@@ -742,6 +801,7 @@ class Sistema{
 
     avaliar_pedido(cliente){
         console.log("-------------------------------------Avaliar um pedido-------------------------------------");
+        // exibe os pedidos feitos pelo cliente
         this.exibir_pedidos_cliente(cliente);
 
         let id = input.question("Digite o ID do pedido que voce deseja avaliar:  ");
@@ -764,6 +824,7 @@ class Sistema{
                 return console.log("\nOpcao nao encontrada. Voltando ao menu inicial.\n")
         }
 
+        // altera a avaliação do pedido
         for (let i = 0; i < this.pedidos.length; i++){
             if (this.pedidos[i].id_pedido == id && this.pedidos[i].id_cliente == cliente.id_cliente){
                 this.pedidos[i].avaliacao = avaliacao;
